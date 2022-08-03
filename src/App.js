@@ -1,16 +1,28 @@
 
 import React from 'react';
 import logo from './logo.svg';
-import './App.css';
+import "./App.css";
 import {Table} from './Table';
 
 import { BrowserRouter,Route,Routes,NavLink } from 'react-router-dom';
-import { Line ,Bar} from "react-chartjs-2";
-import Chart from 'chart.js/auto';
+// import { Line } from "react-chartjs-2";
+// import Chart from 'chart.js/auto';
+import {Chart} from './Chart';
 import moment from "moment";
 import Plot from 'react-plotly.js';
 import 'chartjs-plugin-streaming';
 import * as mqtt from 'react-paho-mqtt';
+import GaugeChart from 'react-gauge-chart';
+
+import {
+  BarChart,
+  Bar,
+  Line,
+  LineChart,
+  XAxis,
+  YAxis,
+  Tooltip
+} from 'recharts';
 
 
 
@@ -19,33 +31,31 @@ function App() {
   const [ client, setClient ] = React.useState(null);
   const _topic = ["From S7-1500"];
   const _options = {};
-  const _temp=['0','1000','2000'];
-  const _temp1=['0','1000','2000'];
-  const [lsit,setlist]=React.useState(['0']);
-  const [lsit1,setlist1]=React.useState(['0']);
+  const [lsit,setlist]=React.useState([{"nhietdo":0,"time":0}]);
+  const [asix,setAsix]=React.useState([1500,400]);
 
   React.useEffect(() => {
     _init();
   },[])
 
   const _init = () => {
-    const c = mqtt.connect("broker.hivemq.com", Number(8000), "abc", _onConnectionLost, _onMessageArrived); // mqtt.connect(host, port, clientId, _onConnectionLost, _onMessageArrived)
+    const c = mqtt.connect("192.168.1.200", Number(8000), "abc", _onConnectionLost, _onMessageArrived); // mqtt.connect(host, port, clientId, _onConnectionLost, _onMessageArrived)
     setClient(c);
   }
 
   const [ data, setdata ] = React.useState({
 
-    nhietdo:10,
+    nhietdo:0,
     time:0
 });
 
-  const [dataPlot,setDataPlot]= React.useState({
-    y: lsit,
-            x: lsit1,
-            type: 'scatter',
-            mode: 'lines+markers',
-            marker: {color: 'red'},
-  });
+  // const [dataPlot,setDataPlot]= React.useState({
+  //   y: lsit,
+  //           x: lsit1,
+  //           type: 'scatter',
+  //           mode: 'lines+markers',
+  //           marker: {color: 'red'},
+  // });
   // React.useEffect(() => {
   //     _onMessageArrived
   // });
@@ -67,20 +77,6 @@ function App() {
     console.log("onMessageArrived: " + message.payloadString)
     let value = JSON.parse(message.payloadString)
     setdata(value)
-    const newList = lsit.push(value["nhietdo"])
-    setlist(newList)
-    const newList1 = lsit1.push(value["time"])
-    setlist1(newList1)
-    console.log(lsit)
-    console.log(lsit1)
-    setDataPlot({
-      y: lsit,
-      x: lsit1,
-      type: 'scatter',
-      mode: 'lines+markes',
-      marker: {color: 'red'},
-    })
-    console.log(dataPlot)
   
   }
 
@@ -106,115 +102,87 @@ function App() {
     client.disconnect();
   }
 
-  const topic = {
-    datasets: [
-      {
-        label: "Dataset",
-        borderColor: "rgb(255, 99, 132)",
-        backgroundColor: "rgba(255, 99, 132, 0.5)",
-        fill: false,
-        lineTension: 0,
-        borderDash: [8, 4],
-        data: []
-      }
-    ]
-  };
-
-  const options = {
-    elements: {
-      line: {
-        tension: 0.5
-      }
-    },
-    scales: {
-      xAxes: 
-        {
-          type: "realtime",
-          distribution: "linear",
-          realtime: {
-            onRefresh: (chart) =>{
-              chart.topic.datasets.forEach((dataset) => {
-                dataset.data.push({
-                  x: Date.now(),
-                  y: Math.random(),
-                });
-              });
-            },
-            delay: 3000,
-            time: {
-              displayFormat: "h:mm"
-            }
-          },
-          ticks: {
-            displayFormats: 1,
-            maxRotation: 0,
-            minRotation: 0,
-            stepSize: 1,
-            maxTicksLimit: 30,
-            minUnit: "second",
-            source: "auto",
-            autoSkip: true,
-            callback: function(value) {
-              return moment(value, "HH:mm:ss").format("mm:ss");
-            }
-          }
-        }
-      ,
-      yAxes: 
-        {
-          ticks: {
-            beginAtZero: true,
-            max: 1
-          }
-        }
+  React.useEffect(() => {
+   
+    console.log(Date.now())
+    lsit.push({"nhietdo":parseInt(data["nhietdo"]),"time":moment().format('YYYY/MM/D hh:mm:ss SSS')});
+    setlist(lsit);
+    if(asix[0]>1550){
+      setAsix([asix[0]-10,asix[1]]);
     }
-  };
+    else{
+      setAsix([asix[0]+10,asix[1]]);
+    }
+      
+  },[data])
   
   
   return (
-    <div>
-          <button
-            id = "btn1"
+    <div className="divName">
+           <BrowserRouter>
+      <div className="App container">
+        <h3 className="d-flex justify-content-center m-3">
+          DASHBOARD
+        </h3>
+        
+        <div className="diveName">
+          <h4>
+          Temperature chart
+          </h4>
+        </div>
+        
+        <div className="realTime" >
+        {/* <GaugeChart id="gauge-chart2"
+        arcPadding={0.01} 
+        nrOfLevels={100} 
+        percent={data["nhietdo"]/100}
+        textColor="black"
+        formatTextValue = {value => value+'°C'}
+        style={{ width: '30%' }}
+        
+      /> */}
+       <LineChart width={asix[0]} height={asix[1]} data={lsit} >
+        <XAxis dataKey='time' />
+        <YAxis />
+        <Line dataKey='nhietdo' type="monotone" stroke="#82ca9d" />
+       
+      </LineChart>
+        <button
+            className="btn1"
+            style={{height: '50px', width : '150px'}} 
             onClick={_onSubscribe}>
-            <h1>Subscribe Topic  </h1>
+            <h4>Subscribe  </h4>
             </button>
             <button
-            id = "btn2"
+            className="btn2"
+            style={{height: '50px', width : '150px'}} 
             onClick={_sendPayload}>
-            <h1>Send Message </h1>
-            </button>
-            {/* <Line data={{
-        labels:["Total Income"],
-        datasets:[{
-            backgroundColor: 'rgba(75,192,192,1)',
-            borderColor: 'rgba(0,0,0,1)',
-            borderWidth: 2,
-            data:[data["nhietdo"]]
-    
-        }]
-    }}
-    
-    options={{
-            title:{
-              display:true,
-              text:'Income',
-              fontSize:20
-            },
-            legend:{
-              display:true,
-              position:'right'
-            },
-            
-          }}
+            <h4>Publish  </h4>
+        </button>
 
- />         */}
- {/* <Plot
-        data={[dataPlot]}
-        // onInitialized={(figure) => setState(figure)}
-        // onUpdate={(figure) =>setState(figure)}
-      /> */}
- 
-{/* <Line data={topic} options={options} /> */}
+        </div>
+        
+        <div className="ChartCss">
+          <Chart className="ChartCss"></Chart>
+        </div>
+
+        
+        
+        
+        <div className="diveTableName">
+          <h4>
+          Data Table
+          </h4> 
+        </div>
+        <Table className="TableCss"></Table>
+        
+
+      <Routes>
+        <Route path='/table' element={<Table/>}/>
+        <Route path='/chart' element={<Chart/>}/>
+      </Routes>
+      </div>
+    </BrowserRouter>
     </div>
   );
 }

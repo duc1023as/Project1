@@ -15,13 +15,13 @@ export class Table extends Component{
 
     refreshList(beach="Montrose Beach"){
         if (beach != "All"){
-        fetch(variables.API_URL+'Sensor/200,'+beach)
+        fetch(variables.API_URL+'Sensor/20,'+beach)
         .then(response=>response.json())
         .then(data=>{
             this.setState({tables:data});
         });}
         else{
-        fetch(variables.API_URL+'Sensor/2000')
+        fetch(variables.API_URL+'Sensor/20')
         .then(response=>response.json())
         .then(data=>{
             this.setState({tables:data});

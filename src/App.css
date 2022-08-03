@@ -36,3 +36,33 @@
     transform: rotate(360deg);
   }
 }
+
+.diveName{
+  text-align:left;
+}
+
+.diveTableName{
+  text-align:left;
+}
+
+.btn1{
+  position: relative;
+  top: 10px;
+  bottom: 50px;
+}
+
+.btn2{
+  position: relative;
+  top: 10px;
+  bottom: 10px;
+}
+
+.ChartCss{
+  position: relative;
+  top: 10px;
+}
+
+.gauge-chart2{
+  position: absolute;
+  left: 500px;
+}

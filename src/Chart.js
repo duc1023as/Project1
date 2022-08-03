@@ -4,6 +4,7 @@ import {ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Toolt
 import { variables } from './Variables';
 import ComboBox from "react-responsive-combo-box";
 import "react-responsive-combo-box/dist/index.css";
+import "./App.css";
 
 
 
@@ -19,13 +20,13 @@ export class Chart extends Component{
 
     refreshList(beach="Montrose Beach"){
         if (beach != "All"){
-        fetch(variables.API_URL+'Sensor/200,'+beach)
+        fetch(variables.API_URL+'Sensor/20,'+beach)
         .then(response=>response.json())
         .then(data=>{
             this.setState({tables:data});
         });}
         else{
-        fetch(variables.API_URL+'Sensor/1000')
+        fetch(variables.API_URL+'Sensor/20')
         .then(response=>response.json())
         .then(data=>{
             this.setState({tables:data});
@@ -77,7 +78,7 @@ export class Chart extends Component{
                         
                         enableAutocomplete
                     />
-                    <h4>Biểu đồ nhiệt độ biển {this.setSelectedOption}</h4>
+                    <h4>Temperature chart of  {this.setSelectedOption}</h4>
                     <ResponsiveContainer className="chart" height={300}>
                         <LineChart 
                         width={600} 
@@ -122,7 +123,7 @@ export class Chart extends Component{
                         
                         enableAutocomplete
                     />
-                    <h4>Biểu đồ nhiệt độ biển {this.setSelectedOption}</h4>
+                    <h4>Temperature chart of {this.setSelectedOption}</h4>
                     <ResponsiveContainer className="chart" height={300}>
                         <LineChart 
                         width={600} 
